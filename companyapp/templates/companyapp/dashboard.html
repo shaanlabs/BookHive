@@ -1,0 +1,278 @@
+{% extends 'companyapp/base.html' %}
+{% block sidebar_notifications %}
+  {% if overdue_books > 0 %}
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.7em;">{{ overdue_books }}</span>
+  {% endif %}
+{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Librarian Dashboard</h2>
+  {% if overdue_books > 0 %}
+    <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <div>
+          There are <strong>{{ overdue_books }}</strong> overdue book(s)! Please follow up with members.
+        </div>
+      </div>
+      <form method="post" action="{% url 'send-overdue-emails' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-outline-light ms-3">Send Email Reminders</button>
+      </form>
+    </div>
+  {% endif %}
+  <!-- Quick Issue/Return Panel -->
+  <div class="row mb-4">
+    <div class="col-md-8 mx-auto">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Quick Issue/Return</h5>
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+          <form method="post" class="row g-2 align-items-end">
+            {% csrf_token %}
+            <div class="col-md-5">
+              <label for="book_id" class="form-label">Book</label>
+              <select class="form-select" name="book_id" id="book_id" required>
+                <option value="">Select Book</option>
+                {% for book in available_books_list %}
+                  <option value="{{ book.id }}">{{ book.title }} ({{ book.copies_available }} available)</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="member_id" class="form-label">Member</label>
+              <select class="form-select" name="member_id" id="member_id" required>
+                <option value="">Select Member</option>
+                {% for member in members %}
+                  <option value="{{ member.id }}">{{ member.username }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+              <button type="submit" name="action" value="issue" class="btn btn-primary w-50">Issue</button>
+              <button type="submit" name="action" value="return" class="btn btn-success w-50">Return</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Quick Issue/Return Panel -->
+  <!-- Export Buttons -->
+  <div class="row mb-4">
+    <div class="col-md-12 text-end">
+      <div class="btn-group" role="group">
+        <a href="{% url 'export-books-csv' %}" class="btn btn-outline-primary">Export Books CSV</a>
+        <a href="{% url 'export-borrowings-csv' %}" class="btn btn-outline-info">Export Borrowings CSV</a>
+        <a href="{% url 'export-overdue-csv' %}" class="btn btn-outline-danger">Export Overdue CSV</a>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-4">
+    <div class="col-md-3">
+      <div class="card text-white bg-primary mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Total Books</h5>
+          <p class="card-text display-6">{{ total_books }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-success mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Books Available</h5>
+          <p class="card-text display-6">{{ available_books }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-info mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Active Borrowings</h5>
+          <p class="card-text display-6">{{ active_borrowings }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-danger mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Overdue Books</h5>
+          <p class="card-text display-6">{{ overdue_books }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-5">
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Top 5 Most Borrowed Books</h5>
+          <canvas id="topBooksBarChart" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Genre Distribution</h5>
+          <canvas id="genrePieChart" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Books Issued Per Month</h5>
+          <canvas id="booksLineChart" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Book Availability</h5>
+          <canvas id="availabilityDoughnutChart" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-5">
+    <div class="col-md-7 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Overdue Books</h5>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Book</th>
+                  <th>Member</th>
+                  <th>Due Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for tx in overdue_list %}
+                <tr>
+                  <td>{{ tx.book.title }}</td>
+                  <td>{{ tx.user.username }}</td>
+                  <td>{{ tx.due_date }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" class="text-center">No overdue books 🎉</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-5 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Recent Activity</h5>
+          <ul class="list-group list-group-flush">
+            {% for tx in activity_feed %}
+            <li class="list-group-item">
+              <span class="fw-bold">{{ tx.user.username }}</span>
+              {% if tx.status == 'borrowed' %}
+                borrowed
+              {% elif tx.status == 'returned' %}
+                returned
+              {% endif %}
+              <span class="fw-bold">{{ tx.book.title }}</span>
+              {% if tx.status == 'borrowed' %}
+                (Due: {{ tx.due_date }})
+              {% elif tx.status == 'returned' %}
+                (Returned: {{ tx.return_date }})
+              {% endif %}
+            </li>
+            {% empty %}
+            <li class="list-group-item text-center">No recent activity</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+<script>
+// Top 5 Most Borrowed Books Bar Chart
+new Chart(document.getElementById('topBooksBarChart'), {
+  type: 'bar',
+  data: {
+    labels: {{ top_books_labels|safe }},
+    datasets: [{
+      label: 'Borrows',
+      data: {{ top_books_counts|safe }},
+      backgroundColor: ['#6C63FF', '#00BFAE', '#FFD93D', '#FF6B6B', '#A3A1FB'],
+      borderRadius: 8
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true } }
+  }
+});
+// Genre Distribution Pie Chart
+new Chart(document.getElementById('genrePieChart'), {
+  type: 'pie',
+  data: {
+    labels: {{ genre_labels|safe }},
+    datasets: [{
+      data: {{ genre_counts|safe }},
+      backgroundColor: ['#6C63FF', '#00BFAE', '#FFD93D', '#FF6B6B', '#A3A1FB', '#F3A683', '#63C7FF', '#B8E994'],
+      borderWidth: 2
+    }]
+  },
+  options: {
+    plugins: { legend: { position: 'bottom' } }
+  }
+});
+// Books Issued Per Month Line Chart
+new Chart(document.getElementById('booksLineChart'), {
+  type: 'line',
+  data: {
+    labels: {{ books_line_labels|safe }},
+    datasets: [{
+      label: 'New Books',
+      data: {{ books_line_counts|safe }},
+      fill: true,
+      borderColor: '#6C63FF',
+      backgroundColor: 'rgba(108,99,255,0.1)',
+      tension: 0.4,
+      pointBackgroundColor: '#FFD93D',
+      pointRadius: 5
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true } }
+  }
+});
+// Book Availability Doughnut Chart
+new Chart(document.getElementById('availabilityDoughnutChart'), {
+  type: 'doughnut',
+  data: {
+    labels: {{ availability_labels|safe }},
+    datasets: [{
+      data: {{ availability_counts|safe }},
+      backgroundColor: ['#00BFAE', '#FF6B6B'],
+      borderWidth: 2
+    }]
+  },
+  options: {
+    plugins: { legend: { position: 'bottom' } }
+  }
+});
+</script>
+{% endblock %} 

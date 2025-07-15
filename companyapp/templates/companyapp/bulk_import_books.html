@@ -1,0 +1,23 @@
+{% extends 'companyapp/base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Bulk Import Books (CSV)</h2>
+  <div class="card">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Import</button>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary ms-2">Cancel</a>
+      </form>
+      <hr>
+      <h6>Sample CSV Format:</h6>
+      <pre class="bg-light p-2 rounded">title,author,genre,isbn,publisher,copies_available,shelf_location
+Book Title,Author Name,fiction,1234567890123,Publisher Name,5,Shelf A1</pre>
+      <div class="alert alert-info mt-2">
+        <strong>Note:</strong> Genre must match one of: fiction, nonfiction, science, history, biography, fantasy, mystery, other.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

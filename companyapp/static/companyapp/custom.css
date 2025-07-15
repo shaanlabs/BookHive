@@ -1,0 +1,107 @@
+/* Attractive Modern LMS Custom Styles */
+
+body {
+  background: #f8fafc;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+
+.sidebar {
+  min-width: 220px;
+  max-width: 220px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #6C63FF 0%, #00BFAE 100%);
+  color: #fff;
+  box-shadow: 2px 0 16px rgba(108,99,255,0.08);
+  border-top-right-radius: 32px;
+  border-bottom-right-radius: 32px;
+  transition: background 0.3s;
+}
+
+.sidebar .nav-link {
+  font-weight: 500;
+  border-radius: 12px;
+  margin: 0 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar .nav-link.active, .sidebar .nav-link:hover {
+  background: rgba(255,255,255,0.15);
+  color: #FFD93D !important;
+}
+
+.sidebar-header h3 {
+  letter-spacing: 2px;
+  font-size: 2rem;
+  color: #FFD93D;
+}
+
+.card {
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(108,99,255,0.08);
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #6C63FF, #00BFAE);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(90deg, #00BFAE, #6C63FF);
+}
+
+.btn-danger {
+  background: linear-gradient(90deg, #FF6B6B, #FFD93D);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(90deg, #FFD93D, #FF6B6B);
+}
+
+.table-striped>tbody>tr:nth-of-type(odd) {
+  background-color: #f3f0ff;
+}
+
+/* Book cover hover effect */
+img[alt="cover"] {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,191,174,0.10);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+img[alt="cover"]:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 24px rgba(108,99,255,0.18);
+}
+
+/* Dark mode */
+.dark-mode {
+  background: #232946 !important;
+  color: #eaeaea !important;
+}
+.dark-mode .card {
+  background: #232946;
+  color: #eaeaea;
+  box-shadow: 0 4px 24px rgba(44,44,84,0.18);
+}
+.dark-mode .navbar, .dark-mode .bg-white {
+  background: #232946 !important;
+  color: #eaeaea !important;
+}
+.dark-mode .sidebar {
+  background: linear-gradient(135deg, #232946 0%, #6C63FF 100%);
+  color: #FFD93D;
+}
+.dark-mode .sidebar .nav-link {
+  color: #FFD93D !important;
+}
+.dark-mode .sidebar .nav-link.active, .dark-mode .sidebar .nav-link:hover {
+  background: rgba(255,255,255,0.10);
+  color: #FFD93D !important;
+} 

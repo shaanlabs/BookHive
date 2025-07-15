@@ -1,0 +1,173 @@
+{% extends 'companyapp/base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Books</h2>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <form class="d-flex" id="searchForm" onsubmit="return false;">
+      <input id="searchInput" class="form-control me-2" type="search" placeholder="Search by title, author, genre..." aria-label="Search">
+    </form>
+    <div>
+      <button id="gridViewBtn" class="btn btn-outline-primary btn-sm me-2 active"><i class="bi bi-grid-3x3-gap"></i> Grid</button>
+      <button id="listViewBtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list"></i> List</button>
+      <a href="{% url 'book-add' %}" class="btn btn-success ms-3">Add New Book</a>
+      <a href="{% url 'bulk-import-books' %}" class="btn btn-outline-info ms-2">Bulk Import</a>
+    </div>
+  </div>
+  <!-- Grid View -->
+  <div id="gridView" class="row g-4">
+    {% for book in books %}
+    <div class="col-md-3 book-card">
+      <div class="card h-100 shadow-sm">
+        {% if book.cover_image %}
+        <img src="{{ book.cover_image.url }}" class="card-img-top" alt="cover" style="height:220px; object-fit:cover;">
+        {% else %}
+        <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height:220px; color:#bbb; font-size:2rem;">No Image</div>
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{ book.title }}</h5>
+          <p class="card-text mb-1"><strong>Author:</strong> {{ book.author }}</p>
+          <p class="card-text mb-1"><strong>Genre:</strong> {{ book.get_genre_display }}</p>
+          <p class="card-text mb-1"><strong>Copies:</strong> {{ book.copies_available }}</p>
+        </div>
+        <div class="card-footer bg-white border-0 d-flex justify-content-between">
+          <a href="{% url 'book-edit' book.pk %}" class="btn btn-sm btn-primary">Edit</a>
+          <button class="btn btn-sm btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-book-id="{{ book.pk }}" data-book-title="{{ book.title }}">Delete</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <!-- List View -->
+  <div id="listView" style="display:none;">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Cover</th>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Genre</th>
+          <th>Copies</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for book in books %}
+        <tr class="book-row">
+          <td>
+            {% if book.cover_image %}
+              <img src="{{ book.cover_image.url }}" alt="cover" width="50" height="70" style="object-fit:cover;">
+            {% else %}
+              <span class="text-muted">No Image</span>
+            {% endif %}
+          </td>
+          <td>{{ book.title }}</td>
+          <td>{{ book.author }}</td>
+          <td>{{ book.get_genre_display }}</td>
+          <td>{{ book.copies_available }}</td>
+          <td>
+            <a href="{% url 'book-edit' book.pk %}" class="btn btn-sm btn-primary">Edit</a>
+            <button class="btn btn-sm btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-book-id="{{ book.pk }}" data-book-title="{{ book.title }}">Delete</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <nav>
+    <ul class="pagination">
+      {% if books.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ books.previous_page_number }}">Previous</a></li>
+      {% endif %}
+      <li class="page-item active"><span class="page-link">{{ books.number }}</span></li>
+      {% if books.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ books.next_page_number }}">Next</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Delete Book</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete <strong id="modalBookTitle"></strong>?
+        </div>
+        <div class="modal-footer">
+          <form id="deleteForm" method="post" action="">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="deleteToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          Book deleted successfully!
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+<script>
+// Grid/List toggle
+const gridViewBtn = document.getElementById('gridViewBtn');
+const listViewBtn = document.getElementById('listViewBtn');
+const gridView = document.getElementById('gridView');
+const listView = document.getElementById('listView');
+gridViewBtn.addEventListener('click', function() {
+  gridView.style.display = '';
+  listView.style.display = 'none';
+  gridViewBtn.classList.add('active');
+  listViewBtn.classList.remove('active');
+});
+listViewBtn.addEventListener('click', function() {
+  gridView.style.display = 'none';
+  listView.style.display = '';
+  listViewBtn.classList.add('active');
+  gridViewBtn.classList.remove('active');
+});
+// Live search/filter
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', function() {
+  const query = this.value.toLowerCase();
+  // Grid view filter
+  document.querySelectorAll('.book-card').forEach(function(card) {
+    const text = card.innerText.toLowerCase();
+    card.style.display = text.includes(query) ? '' : 'none';
+  });
+  // List view filter
+  document.querySelectorAll('.book-row').forEach(function(row) {
+    const text = row.innerText.toLowerCase();
+    row.style.display = text.includes(query) ? '' : 'none';
+  });
+});
+// Delete modal logic
+let deleteBookId = null;
+document.querySelectorAll('.delete-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    deleteBookId = this.getAttribute('data-book-id');
+    document.getElementById('modalBookTitle').innerText = this.getAttribute('data-book-title');
+    document.getElementById('deleteForm').action = `/books/${deleteBookId}/delete/`;
+  });
+});
+// Toast on delete (show after redirect with ?deleted=1)
+if (window.location.search.includes('deleted=1')) {
+  const toast = new bootstrap.Toast(document.getElementById('deleteToast'));
+  toast.show();
+}
+</script>
+{% endblock %} 

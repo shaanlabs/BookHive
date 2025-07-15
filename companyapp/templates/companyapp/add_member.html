@@ -1,0 +1,16 @@
+{% extends 'companyapp/base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Add Member / Librarian</h2>
+  <div class="card">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Add</button>
+        <a href="{% url 'member-management' %}" class="btn btn-secondary ms-2">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %} 
