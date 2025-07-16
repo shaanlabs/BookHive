@@ -170,9 +170,9 @@ MIT. Because sharing is caring.
 ---
 
 ## 📬 Contact
-- **Name:** shaaniffaqui
+- **Name:** shaanif ahmed
 - **Email:** shaaniffakki@gmail.com
-- **GitHub:** [yourusername](https://github.com/yourusername)
+- **GitHub:** [shaaniffaqui](https://github.com/shaaniffaqui)
 
 ---
 
