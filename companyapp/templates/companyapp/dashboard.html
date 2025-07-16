@@ -6,7 +6,10 @@
 {% endblock %}
 {% block content %}
 <div class="container mt-4">
-  <h2>Librarian Dashboard</h2>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Librarian Dashboard</h2>
+    <button id="darkModeToggle" class="btn btn-outline-secondary" aria-label="Toggle dark mode"><i class="bi bi-moon"></i></button>
+  </div>
   {% if overdue_books > 0 %}
     <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
       <div class="d-flex align-items-center">
@@ -24,7 +27,7 @@
   <!-- Quick Issue/Return Panel -->
   <div class="row mb-4">
     <div class="col-md-8 mx-auto">
-      <div class="card shadow-sm">
+      <div class="card shadow-sm card-hover">
         <div class="card-body">
           <h5 class="card-title mb-3">Quick Issue/Return</h5>
           {% if messages %}
@@ -66,18 +69,20 @@
   </div>
   <!-- End Quick Issue/Return Panel -->
   <!-- Export Buttons -->
+  <h4 class="mt-5 mb-3">Export Data</h4>
   <div class="row mb-4">
     <div class="col-md-12 text-end">
       <div class="btn-group" role="group">
-        <a href="{% url 'export-books-csv' %}" class="btn btn-outline-primary">Export Books CSV</a>
-        <a href="{% url 'export-borrowings-csv' %}" class="btn btn-outline-info">Export Borrowings CSV</a>
-        <a href="{% url 'export-overdue-csv' %}" class="btn btn-outline-danger">Export Overdue CSV</a>
+        <a href="{% url 'export-books-csv' %}" class="btn btn-outline-primary"><i class="bi bi-file-earmark-spreadsheet me-1"></i> Export Books CSV</a>
+        <a href="{% url 'export-borrowings-csv' %}" class="btn btn-outline-info"><i class="bi bi-file-earmark-arrow-down me-1"></i> Export Borrowings CSV</a>
+        <a href="{% url 'export-overdue-csv' %}" class="btn btn-outline-danger"><i class="bi bi-exclamation-circle me-1"></i> Export Overdue CSV</a>
       </div>
     </div>
   </div>
+  <h4 class="mt-5 mb-3">Statistics</h4>
   <div class="row mt-4">
     <div class="col-md-3">
-      <div class="card text-white bg-primary mb-3">
+      <div class="card text-white bg-primary mb-3 card-hover">
         <div class="card-body">
           <h5 class="card-title">Total Books</h5>
           <p class="card-text display-6">{{ total_books }}</p>
@@ -85,7 +90,7 @@
       </div>
     </div>
     <div class="col-md-3">
-      <div class="card text-white bg-success mb-3">
+      <div class="card text-white bg-success mb-3 card-hover">
         <div class="card-body">
           <h5 class="card-title">Books Available</h5>
           <p class="card-text display-6">{{ available_books }}</p>
@@ -93,7 +98,7 @@
       </div>
     </div>
     <div class="col-md-3">
-      <div class="card text-white bg-info mb-3">
+      <div class="card text-white bg-info mb-3 card-hover">
         <div class="card-body">
           <h5 class="card-title">Active Borrowings</h5>
           <p class="card-text display-6">{{ active_borrowings }}</p>
@@ -101,7 +106,7 @@
       </div>
     </div>
     <div class="col-md-3">
-      <div class="card text-white bg-danger mb-3">
+      <div class="card text-white bg-danger mb-3 card-hover">
         <div class="card-body">
           <h5 class="card-title">Overdue Books</h5>
           <p class="card-text display-6">{{ overdue_books }}</p>
@@ -109,9 +114,10 @@
       </div>
     </div>
   </div>
-  <div class="row mt-5">
+  <h4 class="mt-5 mb-3">Charts</h4>
+  <div class="row mt-4">
     <div class="col-md-6 mb-4">
-      <div class="card">
+      <div class="card card-hover">
         <div class="card-body">
           <h5 class="card-title">Top 5 Most Borrowed Books</h5>
           <canvas id="topBooksBarChart" height="200"></canvas>
@@ -119,7 +125,7 @@
       </div>
     </div>
     <div class="col-md-6 mb-4">
-      <div class="card">
+      <div class="card card-hover">
         <div class="card-body">
           <h5 class="card-title">Genre Distribution</h5>
           <canvas id="genrePieChart" height="200"></canvas>
@@ -127,7 +133,7 @@
       </div>
     </div>
     <div class="col-md-6 mb-4">
-      <div class="card">
+      <div class="card card-hover">
         <div class="card-body">
           <h5 class="card-title">Books Issued Per Month</h5>
           <canvas id="booksLineChart" height="200"></canvas>
@@ -135,7 +141,7 @@
       </div>
     </div>
     <div class="col-md-6 mb-4">
-      <div class="card">
+      <div class="card card-hover">
         <div class="card-body">
           <h5 class="card-title">Book Availability</h5>
           <canvas id="availabilityDoughnutChart" height="200"></canvas>
@@ -143,9 +149,10 @@
       </div>
     </div>
   </div>
+  <h4 class="mt-5 mb-3">Overdue Books & Recent Activity</h4>
   <div class="row mt-5">
     <div class="col-md-7 mb-4">
-      <div class="card">
+      <div class="card card-hover">
         <div class="card-body">
           <h5 class="card-title">Overdue Books</h5>
           <div class="table-responsive">
@@ -174,7 +181,7 @@
       </div>
     </div>
     <div class="col-md-5 mb-4">
-      <div class="card">
+      <div class="card card-hover">
         <div class="card-body">
           <h5 class="card-title">Recent Activity</h5>
           <ul class="list-group list-group-flush">
@@ -206,14 +213,40 @@
 
 {% block custom_js %}
 <script>
+// Parse chart data from JSON script tags
+function getChartData(id) {
+  return JSON.parse(document.getElementById(id).textContent);
+}
+const topBooksLabels = getChartData('top-books-labels');
+const topBooksCounts = getChartData('top-books-counts');
+const genreLabels = getChartData('genre-labels');
+const genreCounts = getChartData('genre-counts');
+const booksLineLabels = getChartData('books-line-labels');
+const booksLineCounts = getChartData('books-line-counts');
+const availabilityLabels = getChartData('availability-labels');
+const availabilityCounts = getChartData('availability-counts');
+// Dark mode toggle
+const darkModeToggle = document.getElementById('darkModeToggle');
+if (darkModeToggle) {
+  darkModeToggle.addEventListener('click', function() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+    this.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="bi bi-brightness-high"></i>' : '<i class="bi bi-moon"></i>';
+  });
+  // On load, set dark mode if previously enabled
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+    darkModeToggle.innerHTML = '<i class="bi bi-brightness-high"></i>';
+  }
+}
 // Top 5 Most Borrowed Books Bar Chart
 new Chart(document.getElementById('topBooksBarChart'), {
   type: 'bar',
   data: {
-    labels: {{ top_books_labels|safe }},
+    labels: topBooksLabels,
     datasets: [{
       label: 'Borrows',
-      data: {{ top_books_counts|safe }},
+      data: topBooksCounts,
       backgroundColor: ['#6C63FF', '#00BFAE', '#FFD93D', '#FF6B6B', '#A3A1FB'],
       borderRadius: 8
     }]
@@ -227,9 +260,9 @@ new Chart(document.getElementById('topBooksBarChart'), {
 new Chart(document.getElementById('genrePieChart'), {
   type: 'pie',
   data: {
-    labels: {{ genre_labels|safe }},
+    labels: genreLabels,
     datasets: [{
-      data: {{ genre_counts|safe }},
+      data: genreCounts,
       backgroundColor: ['#6C63FF', '#00BFAE', '#FFD93D', '#FF6B6B', '#A3A1FB', '#F3A683', '#63C7FF', '#B8E994'],
       borderWidth: 2
     }]
@@ -242,10 +275,10 @@ new Chart(document.getElementById('genrePieChart'), {
 new Chart(document.getElementById('booksLineChart'), {
   type: 'line',
   data: {
-    labels: {{ books_line_labels|safe }},
+    labels: booksLineLabels,
     datasets: [{
       label: 'New Books',
-      data: {{ books_line_counts|safe }},
+      data: booksLineCounts,
       fill: true,
       borderColor: '#6C63FF',
       backgroundColor: 'rgba(108,99,255,0.1)',
@@ -263,9 +296,9 @@ new Chart(document.getElementById('booksLineChart'), {
 new Chart(document.getElementById('availabilityDoughnutChart'), {
   type: 'doughnut',
   data: {
-    labels: {{ availability_labels|safe }},
+    labels: availabilityLabels,
     datasets: [{
-      data: {{ availability_counts|safe }},
+      data: availabilityCounts,
       backgroundColor: ['#00BFAE', '#FF6B6B'],
       borderWidth: 2
     }]
