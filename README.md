@@ -1,4 +1,4 @@
-# solid-octo-eureka 📚🚀
+# BookHive 📚🚀
 
 > "A library is not a luxury but one of the necessities of life." – Henry Ward Beecher
 
