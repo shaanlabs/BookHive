@@ -2,7 +2,7 @@
 
 > "A library is not a luxury but one of the necessities of life." – Henry Ward Beecher
 
-Welcome to **solid-octo-eureka** – the Library Management System that even your librarian would high-five you for! This Django-powered project is your one-stop solution for managing books, members, borrowings, and overdue reminders, all wrapped in a modern, user-friendly dashboard. Whether you're a code newbie or a seasoned dev, this repo is here to make your life easier (and maybe a little more fun).
+Welcome to **BookHive** – the Library Management System that even your librarian would high-five you for! This Django-powered project is your one-stop solution for managing books, members, borrowings, and overdue reminders, all wrapped in a modern, user-friendly dashboard. Whether you're a code newbie or a seasoned dev, this repo is here to make your life easier (and maybe a little more fun).
 
 ---
 
@@ -172,7 +172,7 @@ MIT. Because sharing is caring.
 ## 📬 Contact
 - **Name:** shaanif ahmed
 - **Email:** shaaniffakki@gmail.com
-- **GitHub:** [shaaniffaqui](https://github.com/shaaniffaqui)
+- **GitHub:** [shaaniffaqui](https://github.com/shaanlabs)
 
 ---
 
